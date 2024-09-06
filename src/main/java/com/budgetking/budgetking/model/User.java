@@ -8,12 +8,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Getter
 @Setter
 @Document(collection = "users")
 public class User {
-    enum PayPeriod {Weekly, Biweekly, Monthly}
 
     @Id
     private String id;

@@ -107,9 +107,11 @@ public class Transaction {
 //        Add transactions to original ArrayList
         transactionHistory.addAll(Arrays.stream(transactions).toList());
 
-        /**Whatever calls this method will have to
-         * sum the array to get current balance**/
 
+/*
+     * Whatever calls this method will have to
+     * sum the array to get current balance
+*/
         return transactionHistory;
     }
 /*

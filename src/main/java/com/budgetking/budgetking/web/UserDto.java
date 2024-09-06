@@ -1,14 +1,12 @@
 package com.budgetking.budgetking.web;
 
-import com.budgetking.budgetking.model.User;
 import lombok.Getter;
 import lombok.Setter;
-
+import com.budgetking.budgetking.model.PayPeriod;
+// TODO: Remove Lombok Getter/Setter from the dependency exclusion in the plugin tag for spring starter
 @Getter @Setter
 public class UserDto {
-    enum PayPeriod {Weekly, Biweekly, Monthly}
 
-    private int id;
     private String name;
     private String email;
     private String password;
@@ -16,5 +14,13 @@ public class UserDto {
     private PayPeriod payPeriod;
     private float payAmount;
 
+    public UserDto(String name, String email, String password, float currentBalance, PayPeriod payPeriod, float payAmount) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.currentBalance = currentBalance;
+        this.payPeriod = payPeriod;
+        this.payAmount = payAmount;
+    }
 }
 
