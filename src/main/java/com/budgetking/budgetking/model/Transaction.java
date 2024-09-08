@@ -3,6 +3,7 @@ package com.budgetking.budgetking.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +20,7 @@ public class Transaction {
 
     private String itemName;
 
-    private Category cat;
+    private Category transactionType;
 
     private Float cost;
 
@@ -27,10 +28,7 @@ public class Transaction {
 
     private String description;
 
-    private boolean isImpulse;
-
-
-    private User mainUser;
+    private User user;
 
     /**
      * Empty constructor for transaction
@@ -39,58 +37,47 @@ public class Transaction {
     }
 
 
-    public Transaction(String itemName, Category cat, float cost, Date date, String description) {
+    public Transaction(String itemName, Category transactionType, float cost, Date date, String description) {
         this.itemName = itemName;
-        this.cat = cat;
         this.cost = cost;
         this.date = date;
         this.description = description;
-
+        this.transactionType = transactionType;
     }
 /**
  * This method creates an array of
     **/
-    public static ArrayList<Transaction> create(String itemName, String cat,
+    public static Transaction create(String itemName, Category cat,
                                                             float cost, Date date, String desc){
-        Category realCategory = Category.Personal;
-        for (Category _cat : Category.values()){
-            if (cat.equals(_cat.toString()))
-                realCategory = _cat;
-        }
-
-
-        ArrayList<Transaction> transactions = new ArrayList<>();
-        transactions.add(new Transaction(itemName, realCategory, cost, date, desc));
-
-        return transactions;
+        return new Transaction(itemName, cat, cost, date, desc);
     }
 
-
-    // Change this to an Arraylist<Transaction> for in/out
-    // have it return ArrayList<Transaction> too.
-    private void printIncomes(ArrayList<Transaction> transactionHistory) {
+    private void printTransactions(List<Transaction> transactionHistory) {
         for (Transaction trans : transactionHistory) {
-            System.out.printf("%s, %s, %s", trans.getCost(), trans.getDate(), trans.getDescription());
+            System.out.printf("%n %s: %s, %s, %s", trans.itemName, trans.getCost(), trans.getDate(), trans.getDescription());
         }
     }
 
+    /**
+     *  Whatever calls this method will have to sum the array to get current balance
+     *
+     * @param transactionHistory List of transactions in recent history
+     * @return list of transactions with 10 additional datapoints for future predictions
+     */
     //    Looks at the past month and predicts weekly transactions
-    public ArrayList<Transaction> predictIncome(ArrayList<Transaction> transactionHistory) {
-
+    public List<Transaction> predictIncome(List<Transaction> transactionHistory) {
 
         float rollingAverage = 0;
         for (Transaction transaction : transactionHistory) {
             Date now = new Date();
-//            excludes transactions > 35 days ago for rolling average
-            if ((now.getTime() - transaction.getDate().getTime() / 86400000.0) > 35) {
+
+            if ((now.getTime() - transaction.getDate().getTime() / 86400000.0) > 35) { //excludes transactions > 35 days ago for rolling average
                 rollingAverage += transaction.getCost();
             }
         }
-//        gets weekly cost (35 days / 5)
-        rollingAverage /= 5.0f;
+        rollingAverage /= 5.0f; //gets weekly cost (35 days / 5)
 
-//        Create future predicted +/- to balance as transaction[]
-        Transaction[] transactions = new Transaction[10];
+        Transaction[] transactions = new Transaction[10]; // Create future change to balance as transaction[]
         Date now = new Date();
         transactions[0] = new Transaction("Future Income",
                 Category.Personal,
@@ -107,10 +94,7 @@ public class Transaction {
 //        Add transactions to original ArrayList
         transactionHistory.addAll(Arrays.stream(transactions).toList());
 
-
 /*
-     * Whatever calls this method will have to
-     * sum the array to get current balance
 */
         return transactionHistory;
     }
@@ -134,9 +118,4 @@ public class Transaction {
 
         return ans;
     }*/
-
-    public boolean isImpulse() {
-        return isImpulse;
-    }
-
 }
