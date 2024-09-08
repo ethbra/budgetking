@@ -27,12 +27,18 @@ public class UserService {
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+    public Optional<User> findByEmailIgnoreCase(String email) {
+        return userRepository.findByEmailIgnoreCase(email);
+    }
 
     public Optional<User> findById(String id) {
         return userRepository.findById(id);
     }
 
     public User createUser(@NotNull UserDto userDto) {
+        if(findByEmailIgnoreCase(userDto.getEmail()).isPresent()) {
+            return null;
+        }
         User user = new User();
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
@@ -42,6 +48,17 @@ public class UserService {
         user.setPayPeriod(userDto.getPayPeriod());
 
         return this.save(user);
+    }
+    public Optional<User> login(@NotNull String email, @NotNull String password) {
+        logger.info("email: {}, password: {}", email, password);
+        Optional<User> user = userRepository.findByEmailIgnoreCase(email);
+
+        if(user.isPresent() && user.get().getPassword().equals(password)) {
+            logger.info("User login successful, password {} matches {}", password, user.get().getPassword());
+            return user;
+        }
+
+        return Optional.empty();
     }
 
     public User save(User user) {
@@ -53,23 +70,6 @@ public class UserService {
 
     public List<User> findAll() {
         return userRepository.findAll();
-    }
-
-    public Optional<User> updateUser(String id, UserDto updatedUser) {
-        return userRepository.findById(id).map(existingUser -> {
-            // Update fields
-            if (updatedUser.getName() != null)
-                existingUser.setName(updatedUser.getName());
-            if (updatedUser.getEmail() != null)
-                existingUser.setEmail(updatedUser.getEmail());
-            if (updatedUser.getPassword() != null)
-                existingUser.setPassword(updatedUser.getPassword());
-            if (updatedUser.getCurrentBalance() < 0)
-                existingUser.setCurrentBalance(updatedUser.getCurrentBalance());
-
-            // Save updated user
-            return userRepository.save(existingUser);
-        });
     }
 
     public Optional<User> updateSome(String id, UserDto userInfo) {

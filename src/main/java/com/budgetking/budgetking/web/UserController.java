@@ -4,8 +4,6 @@ import com.budgetking.budgetking.model.User;
 import com.budgetking.budgetking.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -40,7 +38,6 @@ public class UserController {
      * Get a user by their ID.
      *
      * @param id User's ID in Mongo Database.
-     *
      */
     @Operation(summary = "returns the fields for a user by their ID")
     @GetMapping("/{id}")
@@ -52,47 +49,47 @@ public class UserController {
     /**
      * Get a user by their email address.
      *
-     * @param email
-     * @return ResponseEntity<User>
+     * @param email full email the user signed up with (name@example.com)
+     * @return ResponseEntity<User> - The HTTP response, which will return the User fields if successful
      */
     @GetMapping("/get-by-email/{email}")
     public ResponseEntity<Optional<User>> getByEmail(@PathVariable String email) { //TODO fix this return object
-        Optional<User> mainUser;
-        mainUser = userService.findByEmail(email);
-
-        System.out.println("email = " + email);
-        return ResponseEntity.ok(mainUser);
+        Optional<User> mainUser = userService.findByEmail(email);
+        if (mainUser.isPresent()) {
+            return ResponseEntity.ok(mainUser);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     // TODO: make a better login that uses the service class :)
-
+    @Operation(summary = "takes strings {email}, {password} and returns User if they match", method = "userService.login")
     @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody @Valid LoginRequest loginRequest) {
-        Optional<User> user = userService.findByEmail(loginRequest.getEmail());
-        return user.isPresent() ? ResponseEntity.of(user) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
+    public ResponseEntity<Optional<User>> login(@RequestBody @Valid LoginDto rq) {
+        logger.info("email: {}, password: {}", rq.getEmail(), rq.getPassword());
+        Optional<User> user = userService.login(rq.getEmail(), rq.getPassword());
 
-    /**
-     * Object for login requests
-     */
-    @Getter
-    @Setter
-    static class LoginRequest {
-        private String email;
-        private String password;
+        if (user.isPresent()) {
+            logger.info("Successful login of user {}", user.get().getName());
+            return ResponseEntity.of(Optional.of(user));
+        }
+
+        logger.info("Failed login, returning Status 401");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     /**
      * Add a user to the database.
      *
-     * @param mainUser - The UserDTO object
+     * @param dtoUser - The UserDTO object
      */
+    @Operation(summary = "Add a user to the repository")
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto mainUser) {
-        User user = userService.createUser(mainUser);
+    public ResponseEntity<User> createUser(@RequestBody UserDto dtoUser) {
+        User user = userService.createUser(dtoUser);
         if (user != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(mainUser);
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
         }
+        logger.info("User with this email already exists");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
     }
 
@@ -101,6 +98,7 @@ public class UserController {
      *
      * @param id
      */
+    @Operation(summary = "*** CAREFUL *** permanently deletes user {id}!")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         boolean isDeleted = userService.deleteUserById(id);
