@@ -1,10 +1,13 @@
 package com.budgetking.budgetking.web;
 
+import com.budgetking.budgetking.model.PayPeriod;
 import com.budgetking.budgetking.model.Transaction;
 import com.budgetking.budgetking.model.User;
 import com.budgetking.budgetking.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +23,8 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost")
 public class UserController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
-
-    private final ResponseEntity<User> errMessage = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -32,16 +34,18 @@ public class UserController {
     public List<User> getAllMainUsers() {
         return userService.findAll();
     }
+
     /**
      * Get a user by their ID.
      *
      * @param id
      */
     @GetMapping("/{id}")
-    public User getMainUserById(@PathVariable(value = "userId") String id) {
+    public User getMainUserById(@PathVariable String id) {
         return userService.findById(id)
                 .orElseThrow(() -> new RuntimeException("mainUser not found with id: " + id));
     }
+
     /**
      * Get a list of transactions by the user's ID.
      *
@@ -55,11 +59,12 @@ public class UserController {
             throw e;
         }
     }
+
     /**
      * Get a user by their email address.
-     * @return ResponseEntity<User>
      *
      * @param email
+     * @return ResponseEntity<User>
      */
     @GetMapping("/get-by-email/{email}")
     public ResponseEntity<Optional<User>> getByEmail(@PathVariable String email) { //TODO fix this return object
@@ -91,10 +96,10 @@ public class UserController {
 
     }
 */
+
     /**
      * Object for login requests
-     *
-    */
+     */
     static class LoginRequest {
         private String email;
         private String password;
@@ -117,11 +122,11 @@ public class UserController {
         }
     }
 
-/**
- *  Add a user to the database.
- *
- *  @param mainUser - The UserDTO object
-*/
+    /**
+     * Add a user to the database.
+     *
+     * @param mainUser - The UserDTO object
+     */
     @PostMapping
     public ResponseEntity<UserDto> createMainUser(@RequestBody UserDto mainUser) {
         User user = userService.createUser(mainUser);
@@ -130,11 +135,12 @@ public class UserController {
         }
         return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
     }
-/**
- * Remove a user from the database.
- *
- * @param id
- */
+
+    /**
+     * Remove a user from the database.
+     *
+     * @param id
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMainUser(@PathVariable String id) {
         boolean isDeleted = userService.deleteUserById(id);
@@ -145,20 +151,25 @@ public class UserController {
         }
     }
 
-    /**
-     * Change one of the user's values.
-     * @apiNote This will take any object
-     *
-     * @param id
-     * @param mainUserDetails - UserDTO object
-     */
-    @PutMapping("/{id}")
-    @Operation(summary = "Change one of the user's values.")
-    public ResponseEntity<User> updateMainUser(@PathVariable String id, @RequestBody @Valid UserDto mainUserDetails) {
-        Optional<User> userOptional = userService.updateUser(id, mainUserDetails);
-        return userOptional.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @PatchMapping("/{id}")
+    @Operation(summary = "Change one/some of the user's values.")
+    public ResponseEntity<User> updateMainUser(@PathVariable String id, @RequestBody @Valid UserDto dto) {
+        logger.info("Received request to update user with id: {}", id);
+        logger.info("Request parameters - n: {}, e: {}, pw: {}, cb: {}, pp: {}, p: {}", dto.getName(), dto.getEmail(), dto.getPassword(), dto.getCurrentBalance(), dto.getPayPeriod(), dto.getPayAmount());
+
+        Optional<User> userOptional = userService.updateSome(id, dto);
+
+        if (userOptional.isPresent()) {
+            logger.info("User with id: {} updated successfully", id);
+            return ResponseEntity.ok(userOptional.get());
+        } else {
+            logger.warn("User with id: {} not found", id);
+            return ResponseEntity.notFound().build();
+        }
     }
+
+
+
 /*  TODO: Use this for the BudgetPlanController
 
     @PutMapping("/{id}/plan")
