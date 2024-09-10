@@ -15,9 +15,6 @@ public class Transaction {
 
     public enum Category {Housing, Transportation, Food, Groceries, Debt, Investments, Personal}
 
-    @Id
-    private String id;
-
     private String itemName;
 
     private Category transactionType;
@@ -27,8 +24,6 @@ public class Transaction {
     private Date date = new Date();
 
     private String description;
-
-    private User user;
 
     /**
      * Empty constructor for transaction

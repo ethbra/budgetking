@@ -42,7 +42,7 @@ public class TransactionController {
     @PostMapping("/{id}/transaction")
     public ResponseEntity<List<Transaction>> addTransaction(@PathVariable String id, @RequestBody Transaction transaction) {
         Optional<List<Transaction>> transactions = transactionService.addTransaction(id, transaction);
-        String str = transactions.isPresent() ? "Transactions have returned {}" : "Transaction add failed.";
+        String str = transactions.isPresent() ? "Transactions have returned" : "Transaction add failed.";
         logger.info(str);
         return transactions.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
