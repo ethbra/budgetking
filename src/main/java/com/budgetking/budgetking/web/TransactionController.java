@@ -1,10 +1,10 @@
 package com.budgetking.budgetking.web;
 
 import com.budgetking.budgetking.model.Transaction;
-import com.budgetking.budgetking.model.User;
 import com.budgetking.budgetking.service.TransactionService;
-import com.budgetking.budgetking.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +16,12 @@ import java.util.Optional;
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "http://localhost")
 public class TransactionController {
-    private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
 
     private final TransactionService transactionService;
 
     @Autowired
-    public TransactionController(UserService userService, TransactionService transactionService) {
-        this.userService = userService;
+    public TransactionController(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
 
@@ -34,38 +33,18 @@ public class TransactionController {
     @Operation(summary = "returns the list of transactions for the user with ID")
     @GetMapping("/{id}/transactions")
     public ResponseEntity<List<Transaction>> getTransactionsById(@PathVariable String id) {
-        Optional<User> user = userService.findById(id);
-        return user.map(value -> ResponseEntity.of(Optional.ofNullable(value.getTransactions())))
+        Optional<List<Transaction>> transactions = transactionService.getTransactionsById(id);
+        return transactions.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-
-/* TODO: Put this in the TransactionController
-
-    @PutMapping("/{id}/transaction")
-    public User addTransaction(@PathVariable String id, @RequestBody Transaction transaction) {
-        User mainUser = userService.findById(id)
-                .orElseThrow(() -> new RuntimeException("mainUser not found with id: " + id));
-        List<Transaction> trans = mainUser.getTransactions();
-        trans.add(transaction);
-
-        mainUser.setTransactions(trans);
-
-        return userService.save(mainUser);
+    @Operation(summary = "Given a user ID and transaction, the transaction will be added to the User's data")
+    @PostMapping("/{id}/transaction")
+    public ResponseEntity<List<Transaction>> addTransaction(@PathVariable String id, @RequestBody Transaction transaction) {
+        Optional<List<Transaction>> transactions = transactionService.addTransaction(id, transaction);
+        String str = transactions.isPresent() ? "Transactions have returned {}" : "Transaction add failed.";
+        logger.info(str);
+        return transactions.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-    @RequestMapping("/get-by-email/{email}/transaction")
-    public ResponseEntity<List<Transaction>> getTransactionByEmail(@PathVariable String email) {
-        Optional<User> mainUser;
-        try {
-            mainUser = mainUserRepository.findByEmail(email);
-        } catch (Exception ex) {
-            return errMessage;
-        }
-
-        System.out.println("email = " + email);
-        return ResponseEntity.ok(mainUser.getTransactions());
-    }
-    */
 
 }

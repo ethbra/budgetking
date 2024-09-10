@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 @Getter
 @Setter
 public class UserDto {
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserDto.class);
     private String name;
     private String email;
     private String password;

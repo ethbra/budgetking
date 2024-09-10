@@ -6,15 +6,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-/* TODO: remove extra APIs generated from models (budget-plan-entity-controller, etc.)
-   TODO: Resetting Spring Boot (with database service running) doubles the entries
-*/
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -61,7 +58,6 @@ public class UserController {
         return ResponseEntity.notFound().build();
     }
 
-    // TODO: make a better login that uses the service class :)
     @Operation(summary = "takes strings {email}, {password} and returns User if they match", method = "userService.login")
     @PostMapping("/login")
     public ResponseEntity<Optional<User>> login(@RequestBody @Valid LoginDto rq) {
@@ -74,7 +70,7 @@ public class UserController {
         }
 
         logger.info("Failed login, returning Status 401");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.status(401).build();
     }
 
     /**
@@ -87,10 +83,10 @@ public class UserController {
     public ResponseEntity<User> createUser(@RequestBody UserDto dtoUser) {
         User user = userService.createUser(dtoUser);
         if (user != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+            return ResponseEntity.status(201).body(user);
         }
         logger.info("User with this email already exists");
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+        return ResponseEntity.status(409).body(null);
     }
 
     /**

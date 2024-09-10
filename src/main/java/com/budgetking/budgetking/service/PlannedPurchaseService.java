@@ -1,16 +1,15 @@
 package com.budgetking.budgetking.service;
 
-import com.budgetking.budgetking.repo.PlannedPurchaseRepository;
+import com.budgetking.budgetking.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PlannedPurchaseService {
-
-    private final PlannedPurchaseRepository plannedPurchaseRepo;
+    private final UserRepository userRepository;
 
     @Autowired
-    public PlannedPurchaseService(PlannedPurchaseRepository plannedPurchaseRepo) {
-        this.plannedPurchaseRepo = plannedPurchaseRepo;
+    public PlannedPurchaseService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 }
