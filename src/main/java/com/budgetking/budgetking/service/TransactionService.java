@@ -26,11 +26,9 @@ public class TransactionService {
     public Optional<List<Transaction>> getTransactionsById(String id) {
         Optional<User> user = userRepository.findById(id);
         if(user.isPresent() && user.get().getTransactions() == null || user.get().getTransactions().isEmpty()) { // Always returns empty, so difficult to debug
-
             return Optional.empty();
         }
         return user.map(User::getTransactions);
-
     }
     public Optional<List<Transaction>> addTransaction(String id, Transaction transaction) {
         Optional<User> user = userRepository.findById(id);

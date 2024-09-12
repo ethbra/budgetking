@@ -8,13 +8,8 @@ import org.springframework.data.annotation.Id;
 @Getter
 public class BudgetPlan {
 
-    @Id
-    public String id;
-
     private boolean doesInvesting;
-
     private float minBalance;
-
     boolean foundPurchase;
 
     public BudgetPlan() {
@@ -22,12 +17,10 @@ public class BudgetPlan {
         minBalance = 0.0f;
     }
 
-
     public BudgetPlan(float minBalance, boolean doesInvesting) {
         this.minBalance = minBalance;
         this.doesInvesting = doesInvesting;
     }
-
 
     public static BudgetPlan createPlan(float minBal, boolean doesInvesting) {
         BudgetPlan plan = new BudgetPlan(minBal, doesInvesting);

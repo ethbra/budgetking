@@ -10,5 +10,4 @@ class BudgetKingApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

@@ -10,21 +10,30 @@
     </parent>
     <groupId>com.BudgetKing</groupId>
     <artifactId>budget-king</artifactId>
-    <version>0.4.8-SNAPSHOT</version>
+    <version>0.4.9</version>
     <name>budget-king</name>
     <description>Backend service for storing budget app data</description>
     <url/>
     <licenses>
-        <license/>
+        <license>
+            <name>GNU General Public License</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
+            <distribution>repo</distribution>
+        </license>
     </licenses>
     <developers>
-        <developer/>
+        <developer>
+            <id>ethbra</id>
+            <name>Ethan Brassfield</name>
+            <email>your.email@example.com</email>
+            <url>https://github.com/ethbra</url>
+        </developer>
     </developers>
     <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
+        <connection>scm:git:git://github.com/ethbra/budgetking.git</connection>
+        <developerConnection>scm:git:ssh://github.com:ethbra/budgetking.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/ethbra/budgetking/</url>
     </scm>
     <properties>
         <java.version>21</java.version>
@@ -52,14 +61,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-docker-compose</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-docker-compose</artifactId>
-                    <scope>runtime</scope>
-                    <optional>true</optional>
-                </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
